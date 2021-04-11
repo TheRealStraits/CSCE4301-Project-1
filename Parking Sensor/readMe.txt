@@ -1,1 +1,0 @@
-Parking Sensor using polling.
