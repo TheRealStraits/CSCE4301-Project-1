@@ -82,13 +82,13 @@ void ReRunMe(int ms);
 int main(void)
 {
 
-	Init();
+  Init();
 
-	
-	QueTask(taskA,2);
-	QueTask(taskB,3);
-	
-	
+  
+  QueTask(taskA,2);
+  QueTask(taskB,3);
+  
+  
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
@@ -113,12 +113,12 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_USART2_UART_Init();
-	
-	
-	
-	
-	SysTick_Config(SystemCoreClock / 1000);
-	
+  
+  
+  
+  
+  SysTick_Config(SystemCoreClock / 1000);
+  
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -127,10 +127,10 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		Dispatch();
-		delayMs();
-		HAL_Delay(100);
-		
+    Dispatch();
+    delayMs();
+    HAL_Delay(50);
+    
   }
   /* USER CODE END 3 */
 }
@@ -187,7 +187,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-	
+  
 
     /**Configure the Systick
     */
@@ -299,14 +299,14 @@ void Error_Handler(void)
   __disable_irq();
   while (1)
   {
-		
-		
+    
+    
   }
   /* USER CODE END Error_Handler_Debug */
 }
 void SysTick_Handler(void)
 {
-	systicks++;
+  systicks++;
   /* USER CODE BEGIN SysTick_IRQn 0 */
 
   /* USER CODE END SysTick_IRQn 0 */
@@ -318,49 +318,49 @@ void SysTick_Handler(void)
 
 
 void taskA(void){
-	
+  
 int i =0;
 
-	for( i = 0; i<5; i++)
-	{
-		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
-		HAL_Delay(700);
-	}
-	
-	
-	
-	
+  for( i = 0; i<5; i++)
+  {
+    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
+    HAL_Delay(700);
+  }
+  
+  
+  
+  
 }
 
 
 void taskB(void){
-	int i =0;
+  int i =0;
 
-	for( i = 0; i<5; i++)
-	{
-		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
-		HAL_Delay(50);
-	}
-	
-	ReRunMe(7);
-	
+  for( i = 0; i<10; i++)
+  {
+    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
+    HAL_Delay(50);
+  }
+  
+  ReRunMe(3);
+  
 }
 
 void delayMs(){
-	int i;
-	 
-	if(systicks>=100)
-	{
-		systicks = 0;
-	for(i = 0;i< DelayQ.last; i++){
-		if (DelayQ.p[i].delay==0)
-			QueTask(DelayQ.p[i].func, DelayQ.p[i].realPriority);
+  int i;
+   
+  if(systicks>=50)
+  {
+    systicks = 0;
+  for(i = 0;i< DelayQ.last; i++){
+    if (DelayQ.p[i].delay==0)
+      QueTask(DelayQ.p[i].func, DelayQ.p[i].realPriority);
 
-		else if(DelayQ.p[i].delay>0)
-			(DelayQ.p[i].delay)--;
-	}
+    else if(DelayQ.p[i].delay>0)
+      (DelayQ.p[i].delay)--;
+  }
 }
-	
+  
 }
 
 
