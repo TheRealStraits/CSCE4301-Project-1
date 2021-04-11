@@ -95,6 +95,7 @@ void alarmTask(void)
   HAL_Delay(400);
 }
 
+volatile int systicks;
 /* USER CODE END 0 */
 
 /**
