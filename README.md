@@ -35,11 +35,20 @@ This function is used in order to re-run a task that has been recently dispatche
 
 The Dispatch function goes through the array of structs and calculates the relative priority of each task and compares it to the `maxprio` value which stores the highest priority and `execute` stores the index of the task to which that priority belongs. The for loop of the dispatch goes as follows, for more details :
 
-`current = readyQ.p[i].relativePriority;
-  if (current > maxprio) {
-   maxprio = current;
-	 execute = i;
- }`
+```
+int maxprio = 0;
+int current;
+int execute = 0;
+for(int i = 0;  i < readyQ.last; i++)
+{
+	current = readyQ.p[i].relativePriority;
+	if( current> maxprio)
+	{
+			maxprio = current;
+			execute = i;
+	}
+}
+ ```
  
 ## Unit Tests
 
@@ -47,22 +56,34 @@ _In order to make sure that the task scheduler is working properly, we needed to
 
 In order to discover how the different tasks were being dispatched we had to be able to differentiate between them. We have done so by assigning different tasks, different LED colour toggles. We then proceeded to make sure that each API function is working. 
 
-We started out by looking at the basics, which were the queuing of tasks as well as the dispatching of tasks. We initialised two tasks that toggled two different coloured LEDs. Having one run for a smaller period than the other. Next we proceeded to test the priority queuing by giving the tasks different priorities. As mentioned before, the `Dispatch()` function executes tasks based on the one with the highest priority. Once the function completes all of the tasks in the queue array, it moves back to the begginning of the array and restarts. We were also able to test and see if task queuing can be nested, which essentially means check whehter or not we can queue a task from within another task, like so :
+We started out by looking at the basics, which were the queuing of tasks as well as the dispatching of tasks. We initialised two tasks that toggled two different coloured LEDs. Having one run for a smaller period than the other. 
 
-`void task4(void) {
-  int i =0;`
-  
-  `for( i = 0; i<6; i++)`
-  
-  `{`
-    `HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
-    HAL_Delay(50);`
-  `}`
-  
-`QueTask(task1,5);
- QueTask(task7,5);`
- 
-`}`
+```
+void task2(void)
+{
+	int i =0;
+	for( i = 0; i<10; i++)
+	{
+		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
+		HAL_Delay(55);
+	}
+}
+```
+
+Next we proceeded to test the priority queuing by giving the tasks different priorities. As mentioned before, the `Dispatch()` function executes tasks based on the one with the highest priority. Once the function completes all of the tasks in the queue array, it moves back to the begginning of the array and restarts. We were also able to test and see if task queuing can be nested, which essentially means check whehter or not we can queue a task from within another task, like so :
+
+```
+void task4(void) 
+{
+	for(int i =0; i = 0; i<6; i++)
+	{
+		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
+		HAL_Delay(50);
+	}
+	QueTask(task1,5);
+	QueTask(task7,5);
+}
+```
 
 Next, we wanted to test how the `ReRunMe()` function operates properly. We have therefore inputted the function inside the tasks we had and then had them queue with different delays. Finally, we wanted to test the extents of this task scheduler and therefore have implemented all of the API functions at the same time (which is what is provided in the repository folder title "Task Scheduler & Test Units"). Again, Unfortunately, we were not able to make sure whether or not the API is functional from within an interrupt handler due to some technical difficulties with the UART.
 
