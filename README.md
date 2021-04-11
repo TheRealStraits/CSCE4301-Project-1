@@ -24,7 +24,7 @@ This function inserts the different tasks into the ready queue (array of structs
 #### `Dispatch()`
 
 
-## Scheduler Implementations
+## Sample Applications
 
 _This section describes the different real life implementations that have been used in order to test the task scheduler in different scenarios._
 
