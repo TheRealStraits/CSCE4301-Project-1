@@ -1,4 +1,6 @@
 
+
+
 extern struct Task{
 		int realPriority ;
 		int relativePriority;
@@ -20,6 +22,6 @@ extern struct Queue{
 void extern QueTask(void (*function)(void), int priority);
 void extern Dispatch();
 void extern Init();
-void extern ReRunmMe(int ms);
-void extern Qdelay(struct Task);
+void extern ReRunMe(int ms);
+
 

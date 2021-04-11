@@ -74,8 +74,15 @@ static void MX_USART2_UART_Init(void);
 volatile int systicks;
 void delayMs(void);
 
-void taskA(void);
-void taskB (void);
+void task1(void);
+void task2(void);
+void task3(void);
+void task4(void);
+void task5(void);
+void task6(void);
+void task7(void);
+void task8(void);
+
 void QueTask(void (*function)(void), int prio);
 void ReRunMe(int ms);
 
@@ -85,8 +92,16 @@ int main(void)
   Init();
 
   
-  QueTask(taskA,2);
-  QueTask(taskB,3);
+  QueTask(task4,5);
+  QueTask(task3,8);
+
+
+
+  QueTask(task2,6);
+  QueTask(task8,3);
+  QueTask(task6,1);
+
+
   
   
   /* USER CODE BEGIN 1 */
@@ -307,7 +322,10 @@ void Error_Handler(void)
 void SysTick_Handler(void)
 {
   systicks++;
-  /* USER CODE BEGIN SysTick_IRQn 0 */
+
+
+    
+    /* USER CODE BEGIN SysTick_IRQn 0 */
 
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
@@ -317,7 +335,7 @@ void SysTick_Handler(void)
 }
 
 
-void taskA(void){
+void task1(void){
   
 int i =0;
 
@@ -333,7 +351,92 @@ int i =0;
 }
 
 
-void taskB(void){
+void task2(void){
+  int i =0;
+
+  for( i = 0; i<10; i++)
+  {
+    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
+    HAL_Delay(55);
+  }
+  
+  //ReRunMe(7);
+  
+}
+
+void task3(void){
+  
+int i =0;
+
+  for( i = 0; i<5; i++)
+  {
+    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
+    HAL_Delay(80);
+  }
+  
+  
+  
+  
+}
+
+
+void task4(void){
+  int i =0;
+
+  for( i = 0; i<6; i++)
+  {
+    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
+    HAL_Delay(50);
+  }
+  
+  QueTask(task1,5);
+  QueTask(task7,5);
+  
+}
+void task5(void){
+  
+int i =0;
+
+  for( i = 0; i<5; i++)
+  {
+    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
+    HAL_Delay(340);
+  }
+  
+  
+  
+  
+}
+
+
+void task6(void){
+  int i =0;
+
+  for( i = 0; i<10; i++)
+  {
+    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
+    HAL_Delay(200);
+  }
+  
+  ReRunMe(7);
+  
+}
+void task7(void){
+  
+int i =0;
+
+  for( i = 0; i<5; i++)
+  {
+    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
+    HAL_Delay(60);
+  }
+  
+
+  
+}
+
+
+void task8(void){
   int i =0;
 
   for( i = 0; i<10; i++)
@@ -342,9 +445,10 @@ void taskB(void){
     HAL_Delay(50);
   }
   
-  ReRunMe(3);
+  ReRunMe(4);
   
 }
+
 
 void delayMs(){
   int i;
@@ -353,8 +457,12 @@ void delayMs(){
   {
     systicks = 0;
   for(i = 0;i< DelayQ.last; i++){
-    if (DelayQ.p[i].delay==0)
+    if (DelayQ.p[i].delay==0){
       QueTask(DelayQ.p[i].func, DelayQ.p[i].realPriority);
+      DelayQ.p[i].delay=-1;
+      DelayQ.first = i;
+      DelayQ.last = -1;
+    }
 
     else if(DelayQ.p[i].delay>0)
       (DelayQ.p[i].delay)--;
