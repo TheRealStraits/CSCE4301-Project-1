@@ -95,7 +95,7 @@ void getSecondReadingTask(void)
 
 void alarmTask(void)
 {
-  for (int i = 0; i < 8; i++)
+  for (int i = 0; i < 145; i++)
   {
     HAL_Delay(200);
     HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
@@ -188,7 +188,7 @@ int main(void)
 		{
 			QueTask(alarmTask, 2);
 		} else
-				HAL_Delay(2000);
+				HAL_Delay(30000);
 
     QueTask(getFirstReadingTask, 1);
     QueTask(getSecondReadingTask, 1);
