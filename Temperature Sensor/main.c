@@ -60,8 +60,6 @@ static void MX_USART2_UART_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-struct Queue DelayQ;
-
 uint8_t status [2];
 uint8_t Control [2];
 uint8_t buf [7];
