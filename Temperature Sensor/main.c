@@ -66,6 +66,34 @@ uint8_t hexToAscii(uint8_t n)//4-bit hex value converted to an ascii character
 	return n;
 }
 
+void getFirstReadingTask(void)
+{
+  HAL_I2C_Master_Transmit(&hi2c1,0xD0,&Te_1,1,10);
+  HAL_I2C_Master_Receive(&hi2c1,0xD1,&T1,1,10);
+  buf[1]=hexToAscii(T1&0x0F);
+  buf[0]=hexToAscii(T1>>4);
+  buf[2]='.';
+}
+
+void getSecondReadingTask(void)
+{
+  HAL_I2C_Master_Transmit(&hi2c1,0xD0,&Te_2,1,10);
+  HAL_I2C_Master_Receive(&hi2c1,0xD1,&T2,1,10);
+  T2=(T2>>6)*25;
+  buf[4]=hexToAscii(T2&0x0F);
+  buf[3]=hexToAscii(T2>>4);
+  HAL_UART_Transmit(&huart2,buf,sizeof(buf),10);
+}
+
+void alarmTask(void)
+{
+  for (int i = 0; i < 8; i++)
+  {
+    HAL_Delay(200);
+    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
+  }
+  HAL_Delay(400);
+}
 
 /* USER CODE END 0 */
 
@@ -76,6 +104,10 @@ uint8_t hexToAscii(uint8_t n)//4-bit hex value converted to an ascii character
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+
+  Init();
+  QueTask(getFirstReadingTask, 1);
+  QueTask(getSecondReadingTask, 1);
 
   /* USER CODE END 1 */
 
@@ -127,29 +159,17 @@ int main(void)
   {
     /* USER CODE END WHILE */
 		
-		HAL_I2C_Master_Transmit(&hi2c1,0xD0,&Te_1,1,10);
-		HAL_I2C_Master_Receive(&hi2c1,0xD1,&T1,1,10);
-		buf[1]=hexToAscii(T1&0x0F);
-		buf[0]=hexToAscii(T1>>4);
-		buf[2]='.';
-		
-		HAL_I2C_Master_Transmit(&hi2c1,0xD0,&Te_2,1,10);
-		HAL_I2C_Master_Receive(&hi2c1,0xD1,&T2,1,10);
-		T2=(T2>>6)*25;
-		buf[4]=hexToAscii(T2&0x0F);
-		buf[3]=hexToAscii(T2>>4);
-		HAL_UART_Transmit(&huart2,buf,sizeof(buf),10);
+		Dispatch();
 		
 		if (buf[0] > '1' && buf[1] > '8')
 		{
-			for (int i = 0; i < 8; i++)
-			{
-				HAL_Delay(200);
-				HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
-			}
-			HAL_Delay(400);
+			QueTask(alarmTask, 2);
 		} else
 				HAL_Delay(2000);
+
+    QueTask(getFirstReadingTask, 1);
+    QueTask(getSecondReadingTask, 1);
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
