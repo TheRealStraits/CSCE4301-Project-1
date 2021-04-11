@@ -8,6 +8,12 @@ This project is that of a task scheduler that operates as an RTOS on the STM32. 
 
 The different tasks are initialsed at the beginning of the project with all the necessary implementations. The user can then use then start queuing the different tasks and include their priority along with them using the ***QueTask()*** function. Once the tasks have been queued accordingly. The ***Dispatch()*** function can be run in order to start popping tasks from the queue and start the program. There are other functions that can be used in the API such as the ***ReRunMe()*** & ***Init()*** functions which you can see the description for in the functions section. 
 
+The Ready Queue and Delay Queue are both arrays of structs. These structs contain a pointer that points to the task functions as well as the priority given to the tasks. Another element that is stored along with these tasks is their relative priority which is essentially used in order to figure out which task has the highest (thus being the one that is run first). In order to remove/pop tasks from the queue, their realtive priorities are set to `-1`. Finally, two integers store the index of the `first` and `last` elements in the queue, therefore making it circular.
+
+#### `QueTask(taskName, taskPriority)`
+
+A temporary struct is set up at beginning of the call where all of the task information is stored including the prioirity given to the task. That temporary struct is then stored into the Ready Queue array. Following this procedure, the `first` and `last` integers are updated to indicate where the queue starts and ends.
+
 ### Functions
 
 _All of the different API functions are described here. This section details how the functions work, what they accept as arguments and how to use them._
