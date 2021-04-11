@@ -22,7 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "C:\Users\Saif El Din\Desktop\Temp Sense - Tasking\Core\Inc\scheduler.h"
+#include "scheduler.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -109,23 +109,6 @@ void Dispatch(void);
 void Init(void);
 void QueTask(void (*function)(void), int prio);
 void ReRunMe(int ms);
-
-void delayMs(){
-  int i;
-   
-  if(systicks>=50)
-  {
-    systicks = 0;
-  for(i = 0;i< DelayQ.last; i++){
-    if (DelayQ.p[i].delay==0)
-      QueTask(DelayQ.p[i].func, DelayQ.p[i].realPriority);
-
-    else if(DelayQ.p[i].delay>0)
-      (DelayQ.p[i].delay)--;
-  }
-}
-  
-}
 
 /* USER CODE END 0 */
 
