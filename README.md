@@ -47,8 +47,25 @@ _In order to make sure that the task scheduler is working properly, we needed to
 
 In order to discover how the different tasks were being dispatched we had to be able to differentiate between them. We have done so by assigning different tasks, different LED colour toggles. We then proceeded to make sure that each API function is working. 
 
-We started out by looking at the basics, which were the queuing of tasks as well as the dispatching of tasks. We initialised two tasks that toggled two different coloured LEDs. Having one run for a smaller period than the other. Next we proceeded to test the priority queuing by giving the tasks different priorities. As mentioned before, the `Dispatch()` function executes tasks based on the one with the highest priority. Once the function completes all of the tasks in the queue array, it moves back to the begginning of the array and restarts.
-Next, we wanted to test how the `ReRunMe()` function operates properly. 
+We started out by looking at the basics, which were the queuing of tasks as well as the dispatching of tasks. We initialised two tasks that toggled two different coloured LEDs. Having one run for a smaller period than the other. Next we proceeded to test the priority queuing by giving the tasks different priorities. As mentioned before, the `Dispatch()` function executes tasks based on the one with the highest priority. Once the function completes all of the tasks in the queue array, it moves back to the begginning of the array and restarts. We were also able to test and see if task queuing can be nested, which essentially means check whehter or not we can queue a task from within another task, like so :
+
+`void task4(void) {
+  int i =0;`
+  
+  `for( i = 0; i<6; i++)`
+  
+  `{`
+    `HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
+    HAL_Delay(50);`
+  `}`
+  
+`QueTask(task1,5);
+ QueTask(task7,5);`
+ 
+`}`
+
+Next, we wanted to test how the `ReRunMe()` function operates properly. We have therefore inputted the function inside the tasks we had and then had them queue with different delays. Finally, we wanted to test the extents of this task scheduler and therefore have implemented all of the API functions at the same time (which is what is provided in the repository folder title "Task Scheduler & Test Units"). Again, Unfortunately, we were not able to make sure whether or not the API is functional from within an interrupt handler due to some technical difficulties with the UART.
+
 ## Sample Applications
 
 _This section describes the different real life implementations that have been used in order to test the task scheduler in different scenarios._
@@ -61,4 +78,6 @@ This temperature sensor was implemented using the RS3231 RTC module. The impleme
 
 This parking sensor was implemented using the HC-SR04 Ultrasonic sensor. The implementation starts by reading the echo pin of the sensor and counting how long it has been in the UP state (`Task #1`). This value indicates how long for the ultrasonic frequency to be transmitted and received. Using this time we can calculate the distance (`Task #2`) between the Ultrasonic sensor and the object in front of it. This distance is evaluated every 0.5 seconds. At a certain distance, a buzzer starts beeping at a certain frequency (`Task #3`). That frequency increase the closer an object is from the sensor. The ultrasonic sensor was implemented using polling methods since the timer interrupts were not functioning properly on our STM32. 
 
-## How to Run the Scheduler and the Implementations 
+## How to Run the Scheduler and the Implementations
+
+Include the header and C file inside the project folder (make sure to remember the path in which the headers are stored and make sure to change the header file path inside the header file and the main project file). Make sure to initialise the appropriate GPIO ports and communication ports necessary for running the appropiate applications. Then you are free to use the API functions.
