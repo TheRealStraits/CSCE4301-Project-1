@@ -56,8 +56,6 @@ static void MX_TIM1_Init(void);
 static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
-#define usTIM	TIM1
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -70,13 +68,45 @@ char uartBuf[100];
 void usDelay(uint32_t uSec)
 {
 	if(uSec < 2) uSec = 2;
-	usTIM->ARR = uSec - 1; 	/*sets the value in the auto-reload register*/
-	usTIM->EGR = 1; 			/*Re-initialises the timer*/
-	usTIM->SR &= ~1; 		//Resets the flag
-	usTIM->CR1 |= 1; 		//Enables the counter
-	while((usTIM->SR&0x0001) != 1);
-	usTIM->SR &= ~(0x0001);
+	TIM1->ARR = uSec - 1; 	/*sets the value in the auto-reload register*/
+	TIM1->EGR = 1; 			/*Re-initialises the timer*/
+	TIM1->SR &= ~1; 		//Resets the flag
+	TIM1->CR1 |= 1; 		//Enables the counter
+	while((TIM1->SR&0x0001) != 1);
+	TIM1->SR &= ~(0x0001);
 }
+
+void triggerSensorTask(void)
+{
+	HAL_GPIO_WritePin(TRIG_GPIO_Port, TRIG_Pin, GPIO_PIN_RESET);
+	usDelay(3);
+
+	HAL_GPIO_WritePin(TRIG_GPIO_Port, TRIG_Pin, GPIO_PIN_SET);
+	usDelay(10);
+	HAL_GPIO_WritePin(TRIG_GPIO_Port, TRIG_Pin, GPIO_PIN_RESET);
+}
+
+void readEchoPinTask(void)
+{
+	while(HAL_GPIO_ReadPin(ECHO_GPIO_Port, ECHO_Pin) == GPIO_PIN_RESET);
+
+	numTicks = 0;
+	while(HAL_GPIO_ReadPin(ECHO_GPIO_Port, ECHO_Pin) == GPIO_PIN_SET)
+	{
+		numTicks++;
+		usDelay(75);
+	};
+}
+
+void calculateTask(void)
+{
+	distance = (numTicks + 0.0f)*75*speedOfSound;
+
+	sprintf(uartBuf, "Distance (cm)  = %.1f\r\n", distance);
+	HAL_UART_Transmit(&huart2, (uint8_t *)uartBuf, strlen(uartBuf), 100);
+}
+
+volatile int systicks;
 
 /* USER CODE END 0 */
 
@@ -87,7 +117,10 @@ void usDelay(uint32_t uSec)
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+Init();
+	QueTask(triggerSensorTask, 1);
+	QueTask(readEchoPinTask, 2);
+	QueTask(calculateTask, 3);
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -111,7 +144,8 @@ int main(void)
   MX_TIM1_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-	uint32_t numTicks = 0;
+	
+  uint32_t numTicks = 0;
 
   /* USER CODE END 2 */
 
@@ -120,35 +154,19 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
-		//Set TRIG to LOW for few uSec
-		HAL_GPIO_WritePin(TRIG_GPIO_Port, TRIG_Pin, GPIO_PIN_RESET);
-		usDelay(3);
-		
-		//*** START Ultrasonic measure routine ***//
-		//1. Output 10 usec TRIG
-		HAL_GPIO_WritePin(TRIG_GPIO_Port, TRIG_Pin, GPIO_PIN_SET);
-		usDelay(10);
-		HAL_GPIO_WritePin(TRIG_GPIO_Port, TRIG_Pin, GPIO_PIN_RESET);
-		
-		//2. Wait for ECHO pin rising edge
-		while(HAL_GPIO_ReadPin(ECHO_GPIO_Port, ECHO_Pin) == GPIO_PIN_RESET);
-		
-		//3. Start measuring ECHO pulse width in usec
-		numTicks = 0;
-		while(HAL_GPIO_ReadPin(ECHO_GPIO_Port, ECHO_Pin) == GPIO_PIN_SET)
+		Dispatch();
+		QueTask(triggerSensorTask, 1);
+		QueTask(readEchoPinTask, 2);
+		QueTask(calculateTask, 3);
+	  	if (distance <= 30.0)
 		{
-			numTicks++;
-			usDelay(75); //2.8usec
-		};
-		
-		//4. Estimate distance in cm
-		distance = (numTicks + 0.0f)*75*speedOfSound;
-		
-		//5. Print to UART terminal for debugging
-		sprintf(uartBuf, "Distance (cm)  = %.1f\r\n", distance);
-		HAL_UART_Transmit(&huart2, (uint8_t *)uartBuf, strlen(uartBuf), 100);
-		
+			int beep = 15 * distance;
+			for (int i = 0; i < 5; i++)
+			{
+				HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_4);
+				HAL_Delay(beep);
+			}
+		}
 		HAL_Delay(1000);
 		
     /* USER CODE BEGIN 3 */
