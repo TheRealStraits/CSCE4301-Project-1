@@ -102,3 +102,8 @@ This parking sensor was implemented using the HC-SR04 Ultrasonic sensor. The imp
 ## How to Run the Scheduler and the Implementations
 
 Include the header and C file inside the project folder (make sure to remember the path in which the headers are stored and make sure to change the header file path inside the header file and the main project file). Make sure to initialise the appropriate GPIO ports and communication ports necessary for running the appropiate applications. Then you are free to use the API functions.
+
+## Video Demonstrations of Sample Applications
+
+- Application 1 (Temprature Sensor) : https://drive.google.com/file/d/1knHmQtrQBfHG2ONK_-uCYbUMhs5kvBrh/view?usp=sharing
+- Application 2 (Parking Sensor) :  https://drive.google.com/file/d/1EtKLzS2O56TVQEfP6voHuLIpwFPAm25a/view?usp=sharing
